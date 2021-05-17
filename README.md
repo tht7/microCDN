@@ -1,13 +1,13 @@
-#Micro CDN
+# Micro CDN
 
-#Start up
+# Start up
 in order to start the server up just run
 ```bash
 npm i
 npm run start
 ```
 
-##Configuration
+## Configuration
 Almost all the config is taken from the environment
 
 
