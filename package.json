@@ -1,0 +1,20 @@
+{
+  "name": "cdnforkueez",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "file-type": "^16.4.0",
+    "google-closure-compiler": "^20210505.0.0",
+    "ioredis": "^4.27.2",
+    "morgan": "~1.9.1",
+    "rimraf": "^3.0.2",
+    "unzipper": "^0.10.11",
+    "uuid": "^8.3.2"
+  }
+}
