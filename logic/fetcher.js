@@ -50,7 +50,7 @@ class Fetcher {
 	 */
 	async getScriptReadStream(scriptId, lastCached = 0, deCompress = false) {
 		let scriptFileStream            = null;
-		const isMap                     = scriptId.endsWith('.map');
+		const isMap                     = !scriptId.endsWith('.js');
 		const computedScriptId          = deCompress? `DECOMPRESSED:${scriptId}` : scriptId;
 		if (!isMap && this.cache) {
 			let needsDecompression      = false;
