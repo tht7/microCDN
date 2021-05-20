@@ -36,6 +36,8 @@ function collectMetadata(req) {
 	includesIFExists(metadata, 'X-Access-Control-Allow-Origin', req.header('X-Access-Control-Allow-Origin'));
 	includesIFExists(metadata, 'X-Cache-Control', req.header('X-Cache-Control'));
 	includesIFExists(metadata, 'X-Expires', req.header('X-Expires'));
+	includesIFExists(metadata, 'X-Name', req.header('X-Name'));
+	includesIFExists(metadata, 'X-Debug', req.header('X-Debug'));
 	includesIFExists(metadata, 'password', req.header('X-Password'));
 	return metadata;
 }
@@ -66,7 +68,8 @@ function createRouter(storage) {
 			(await fetcher.getScriptReadStream(newScriptId, null, needsDecompression)).pipe(res);
 		} catch (complingError) {
 			console.error(complingError);
-			res.status(complingError.code || 500).write(complingError.message).end();
+			res.status(complingError.code || 500).write(complingError.message);
+			res.end();
 		}
 		
 	});
@@ -82,6 +85,15 @@ function createRouter(storage) {
 		const metadata                  = collectMetadata(req);
 		const fileId                    = req.params['fileId'];
 		try {
+			const metadata              = await storage.getScriptMetadata(fileId);
+			if (!metadata) {
+				return res.status(404).end();
+			}
+			if (metadata['password']
+				&& metadata['password'] !== req.header('X-Password')) {
+				return res.status(403).end();
+			}
+			
 			const newScriptId           = await compiler.patchScriptFile(req, (req.header('Content-Type') || '').split(';')[0], metadata, fileId, metadata['password']);
 			res.status(200);
 			const needsDecompression    = !req.acceptsEncodings('br');

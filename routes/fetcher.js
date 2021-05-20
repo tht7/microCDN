@@ -51,6 +51,24 @@ function getRoute(storage) {
 				scriptFileStream.pipe(res);
 			});
 	});
+	
+	/**
+	 * Getting the metadata for a script
+	 */
+	router.get('/meta/:fileId', function (req, res) {
+		const lastModified = Date.parse(req.header('If-Modified-Since'));
+		const fileId = req.params['fileId'];
+		fetcher.getScriptMetadata(fileId)
+			.then(scriptMetadata => {
+				if (!scriptMetadata) {
+					// wops not found!
+					return res.status(404).end();
+				}
+				// Important!! don't send the password to the client! but I want to send a bool if there is a password!
+				scriptMetadata.password = !!scriptMetadata.password;
+				res.status(200).json(scriptMetadata).end();
+			});
+	});
 	return router;
 }
 

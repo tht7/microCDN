@@ -12,7 +12,7 @@ Almost all the config is taken from the environment
 
 
 
-| Variable name        | purpose          |
+| Variable name        | Purpose          |
 | ------------- |:-------------:|
 | PORT      | The port to which express will listen|
 | SSL_KEY_PATH      | The Path to the SSL private key ( if not supplied a self signed key will be used )|

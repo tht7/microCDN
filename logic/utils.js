@@ -26,31 +26,12 @@ function makeError(message, code, type = Error) {
 	return newErr;
 }
 
-/**
- * in the metadata all the field that start with X- should be returned to the user as headers
- * This will collect and filter them up
- * @param metadata
- * @returns {Object}
- */
-function getHeadersFromMetadata(metadata) {
-	if (metadata) {
-		const headersObject = {};
-		Object.keys(metadata)
-			.filter(keyName => keyName.startsWith('X-'))
-			.forEach(keyName => {
-				headersObject[keyName.replace(/^X\-/, '')] = metadata[keyName];
-			});
-		return headersObject;
-	}
-	return {};
-}
 // endregion
 
 
 module.exports = {
 	getPureScriptId,
 	makeError,
-	getHeadersFromMetadata,
 	kb,
 	mb
 }
