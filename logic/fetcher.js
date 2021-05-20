@@ -113,6 +113,19 @@ class Fetcher {
 		return scriptFileStream;
 	}
 	
+	async getScriptMetadata(scriptId) {
+		const pureId                    = getPureScriptId(scriptId);
+		if (this.cache) {
+			/** @type {CacheNode|null} */
+			const cachedNode            = this.cache.read(`${pureId}.js`);
+			if (cachedNode) {
+				return cachedNode.scriptMetadata;
+			}
+		}
+		
+		return this.storage.getScriptMetadata(`${pureId}.js`);
+	}
+	
 	streamDecompress(stream, scriptId, metadata) {
 		const decompressionPipe         = zlib.createBrotliDecompress();
 		stream.pipe(decompressionPipe);

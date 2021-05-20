@@ -30,7 +30,7 @@ const { getPureScriptId }               = require('./utils');
 
 // region CONSTANTS
 const allowedScriptExt                  = ['.js'];
-const allowedScriptTypes                = ['text/javascript'];
+const allowedScriptTypes                = ['text/javascript','application/x-javascript'];
 const allowedArchiveTypes               = ['application/zip'];
 const allowedMimeTypes                  = [...allowedScriptTypes, ...allowedArchiveTypes];
 const filteredFilesAndDirectories       = ['__MACOSX', '\\.DS_Store', '\\.'];

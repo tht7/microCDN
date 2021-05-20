@@ -28,7 +28,17 @@ const fetcher           = require('./routes/fetcher');
 const compiler           = require('./routes/compiler');
 const app               = express();
 
+app.options("/*", function(req, res, next){
+	res.header('Access-Control-Allow-Origin', req.header('Origin') || '*');
+	res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+	res.header('Access-Control-Allow-Headers', req.header('access-control-request-headers')
+		|| '*');
+	res.sendStatus(200);
+});
+
+
 app.use(logger('dev'));
+app.use(express.static('public'))
 
 app.use(fetcher(storage));
 app.use(compiler(storage));
