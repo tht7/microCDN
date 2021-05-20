@@ -110,8 +110,9 @@ class Compiler {
 			if (fs.statSync(`${filePath}.min.js`).size >= this.sizeLimits.minifiedSize) {
 				throw new Error('Minified file is bigger then the limits allow');
 			}
+			const ogFilePath = jsFilesToMinify.length === 1 && extraMetadata['X-Debug'] ? jsFilesToMinify[0] : undefined;
 			
-			await this.saveScriptToStorage(newScriptId, `${filePath}.min.js`, `${filePath}.map`, extraMetadata);
+			await this.saveScriptToStorage(newScriptId, `${filePath}.min.js`, extraMetadata['X-Debug'] ? `${filePath}.map` : undefined , extraMetadata, ogFilePath);
 			
 			return `${newScriptId}.js`;
 		} finally {
@@ -240,11 +241,15 @@ class Compiler {
 			});
 		});
 	}
-	saveScriptToStorage (scriptId, scriptFilePath, scriptFileMapPath, metadata) {
+	saveScriptToStorage (scriptId, scriptFilePath, scriptFileMapPath, metadata, sourceScript = undefined) {
 		let taskList = [];
 		taskList.push(this._saveFileToStorage(`${scriptId}.js`, scriptFilePath, metadata));
 		if (scriptFileMapPath) {
 			taskList.push(this._saveFileToStorage(`${scriptId}.map`, scriptFileMapPath));
+		}
+		if (sourceScript) {
+			taskList.push(this._saveFileToStorage(`SOURCE:${scriptId}`, sourceScript));
+			
 		}
 		return Promise.all(taskList);
 	}

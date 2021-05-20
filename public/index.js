@@ -8,7 +8,8 @@
  * and in testing we can set this up to be whatever we'd want
  * @type {string}
  */
-let basePoint       = 'https://localhost:443/';
+let basePoint       = '/';
+
 // endregion
 /**
  * localStorage['myScripts'] should be a list of "tracked" scriptId's
@@ -160,21 +161,21 @@ Vue.component('upload-dialog', {
 			}
 			if (!this.form["X-Access-Control-Allow-Origin"]
 				|| this.form["X-Access-Control-Allow-Origin"] === '') {
-				this.form['X-Access-Control-Allow-Origin'] = undefined;
+				delete this.form['X-Access-Control-Allow-Origin'];
 			}
 			
-			if (!this.form["X-Expires"]
+			if (this.form["X-Expires"] === null
 				|| this.form["X-Expires"] === '') {
-				this.form['X-Expires'] = undefined;
+				delete this.form['X-Expires'];
 			}
-			if (!this.form["X-Name"]
+			if (this.form["X-Name"] === null
 				|| this.form["X-Name"] === '') {
-				this.form['X-Name'] = undefined;
+				delete this.form['X-Name'];
 			}
 			
-			if (!this.form["X-Password"]
+			if (this.form["X-Password"] === null
 				|| this.form["X-Password"] === '') {
-				["X-Password"]['X-Password'] = undefined;
+				delete this.form['X-Password'];
 			}
 			
 			this.form['Content-Type'] = (this.scriptFile||{}).type || 'text/javascript';
@@ -557,7 +558,7 @@ let app = new Vue({
 				Vue.set(this, 'scriptCodeToEdit', null);
 			} else {
 				Vue.set(this, 'scriptMetadataToEdit', this.myScripts[scriptId]);
-				const code  = await (await fetch(`${basePoint}${scriptId}`)).text();
+				const code  = await (await fetch(`${basePoint}source/${scriptId}`)).text();
 				console.log(code);
 				Vue.set(this, 'scriptCodeToEdit', code);
 			}

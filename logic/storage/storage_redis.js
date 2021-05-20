@@ -71,7 +71,7 @@ class StorageModule extends EventEmitter {
 	 */
 	async getScriptStream(scriptId, withMetadata = true, lastChanged = null) {
 		let metadata            = null;
-		if (withMetadata || !lastChanged) {
+		if (withMetadata) {
 			// we'll need the metadata to know if the script is cached so we'll bring it anyway
 			metadata            = await this.getScriptMetadata(scriptId);
 			if (!metadata) {
@@ -131,6 +131,7 @@ class StorageModule extends EventEmitter {
 				.del(`META:${pureKey}`)
 				.del(`${pureKey}.js`)
 				.del(`${pureKey}.map`)
+				.del(`SOURCE:${pureKey}`)
 				.exec();
 			this.emitDeletionNotification(scriptId);
 		} catch (ignoreDeletionError) {}
@@ -146,6 +147,7 @@ class StorageModule extends EventEmitter {
 				.rename(`META:${oldPureKey}`, `META:${newPureKey}`)
 				.rename(`${oldPureKey}.js`, `${newPureKey}.js`)
 				.rename(`${oldPureKey}.map`, `${newPureKey}.map`)
+				.rename(`SOURCE:${oldPureKey}`, `SOURCE:${newPureKey}`)
 				.exec();
 			this.emitDeletionNotification(oldScriptId);
 		} catch (ignoreDeletionError) {}
@@ -222,7 +224,7 @@ class ScriptWriteableStream extends Writable {
 	_construct(callback) {
 		if (!this.metadataSaved) {
 			this.metadataSaved            = true;
-			if (!this.scriptId.endsWith('.map')) {
+			if (this.scriptId.endsWith('.js')) {
 				if (!this.metadata)
 					this.metadata         = {};
 				this.metadata.lastChanged = Date.now();

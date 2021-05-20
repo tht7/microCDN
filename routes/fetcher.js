@@ -9,8 +9,8 @@ const router            = new express.Router();                         // the e
 const Fetcher           = require('../logic/fetcher');                  // the logic unit that drives this "implementation"
 const StorageModule     = require('../logic/storage/storage_redis');    // the persistence module
 const Cache             = require('../logic/cache/LRU').Cache;          // the caching module
-const { kb, mb, getHeadersFromMetadata } = require('../logic/utils');   // some units (those stand for MegaBytes and Kilo-Bytes)
-const { setHeaders }    = require('./utils');                           // used to set the headers, shared with the compiler routes
+const { kb, mb, getPureScriptId } = require('../logic/utils');   // some units (those stand for MegaBytes and Kilo-Bytes)
+const { setHeaders, getHeadersFromMetadata }    = require('./utils');                           // used to set the headers, shared with the compiler routes
 // endregion
 function getRoute(storage) {
 // region SETUP
@@ -18,7 +18,6 @@ function getRoute(storage) {
 	const cache         = new Cache(cachingLimit);
 	const fetcher       = new Fetcher(cache, storage);
 // endregion
-	
 	/**
 	 * Getting the script files
 	 */
@@ -68,6 +67,36 @@ function getRoute(storage) {
 				scriptMetadata.password = !!scriptMetadata.password;
 				res.status(200).json(scriptMetadata).end();
 			});
+	});
+	
+	/**
+	 * Getting the source for a script
+	 */
+	router.get('/source/:fileId', async function (req, res) {
+		const fileId                    = req.params['fileId'];
+		const lastModified              = Date.parse(req.header('If-Modified-Since'));
+		const needsDecompression        = !req.acceptsEncodings('br');
+		let scriptFileStream            = await fetcher.getScriptReadStream(`SOURCE:${getPureScriptId(fileId)}`, lastModified, needsDecompression);
+		console.log(scriptFileStream);
+		if (typeof scriptFileStream     === 'number') {
+			// this is not a streammmmm, it's an error
+			if (scriptFileStream        === -1) {
+				// CACHE CONTROL HIT!
+				return res.status(304).end();
+			} else if (scriptFileStream === -2) {
+				// Wops script not found!
+				 scriptFileStream       = await fetcher.getScriptReadStream(`${getPureScriptId(fileId)}.js`, lastModified, needsDecompression);
+			}
+		}
+		if (typeof scriptFileStream     === 'number') {
+			if (scriptFileStream        === -2) {
+				// Wops script not found!
+				return res.status(404).end();
+			}
+		}
+		res.status(200);
+		setHeaders(res, scriptFileStream.metadata, fileId, !needsDecompression);
+		scriptFileStream.pipe(res);
 	});
 	return router;
 }
